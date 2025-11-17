@@ -258,7 +258,7 @@ export default function Admin() {
     setAuthToken(null);
     setToken('');
     setProjects([]); setProfile(null); setContacts([]); setExperiences([]); setCertifications([]);
-    setEmail('');``
+    setEmail('');
     setPassword(''); 
     setStatus({ type:'success', msg:'Logged out' });
   };
