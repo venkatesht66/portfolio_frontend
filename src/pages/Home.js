@@ -32,8 +32,8 @@ export default function Home() {
         setError('');
       })
       .catch(err => {
-        console.error('Home load error:', err);
-        setError('Could not load profile.');
+        console.warn("Public home cannot load profile");
+        setProfile(null);
       })
       .finally(() => {
         setLoading(false);
