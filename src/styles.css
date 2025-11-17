@@ -437,7 +437,6 @@ html, body {
   box-sizing: border-box;
 }
 
-
 /* images should be responsive to avoid overflow */
 .container img, .card img, img {
   max-width: 100%;
@@ -497,7 +496,6 @@ html, body {
     width: 100%;
   }
 }
-
 
 /* guard against elements with fixed width causing horizontal scroll */
 * {
