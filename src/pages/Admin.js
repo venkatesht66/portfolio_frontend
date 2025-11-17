@@ -258,6 +258,8 @@ export default function Admin() {
     setAuthToken(null);
     setToken('');
     setProjects([]); setProfile(null); setContacts([]); setExperiences([]); setCertifications([]);
+    setEmail('');``
+    setPassword(''); 
     setStatus({ type:'success', msg:'Logged out' });
   };
 
@@ -484,9 +486,9 @@ export default function Admin() {
 
                 <form onSubmit={doLogin} className="contact-form">
                   <label>Admin Email</label>
-                  <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="admin email" required />
+                  <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="enter email" required />
                   <label>Password</label>
-                  <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="password" required />
+                  <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="enter password" required />
                   <div style={{ display:'flex', gap:8, marginTop:10 }}>
                     <button className="btn">Sign in</button>
                     <button type="button" className="btn secondary" onClick={()=>{ setEmail(''); setPassword(''); setShowLogin(false); }}>Cancel</button>
