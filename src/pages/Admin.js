@@ -454,7 +454,7 @@ export default function Admin() {
   if (!token) {
     return (
       <div className="container" style={{ paddingTop: 40, paddingBottom: 40 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: 24, alignItems: 'center' }}>
+        <div className="login-grid">
           <div>
             <div className="card" style={{ padding: 28, borderRadius: 16 }}>
               <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
@@ -534,7 +534,7 @@ export default function Admin() {
         </div>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 420px', gap:18, marginTop:18 }}>
+      <div className="admin-grid" style={{ marginTop: 18 }}>
         {/* LEFT: projects + list */}
         <div>
           <div className="card">
