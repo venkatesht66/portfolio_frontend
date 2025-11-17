@@ -257,7 +257,13 @@ export default function Admin() {
     localStorage.removeItem('token');
     setAuthToken(null);
     setToken('');
-    setProjects([]); setProfile(null); setContacts([]); setExperiences([]); setCertifications([]); setEmail(''); setPassword('');
+    setProjects([]); 
+    setProfile(null); 
+    setContacts([]); 
+    setExperiences([]); 
+    setCertifications([]); 
+    setEmail(''); 
+    setPassword('');
     setStatus({ type:'success', msg:'Logged out' });
   };
 
