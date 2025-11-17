@@ -1,0 +1,421 @@
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --muted:#94a3b8;
+  --accent:#4f46e5; /* indigo */
+  --accent-2:#06b6d4; /* teal */
+  --glass: rgba(255,255,255,0.04);
+  --glass-2: rgba(255,255,255,0.02);
+  --radius:14px;
+  --max-width:1100px;
+  --text:#e6eef9;
+  --soft:#cbd5e1;
+}
+
+* { box-sizing: border-box; }
+html,body,#root { height: 100%; }
+
+/* -------------------- Body & Animated Background -------------------- */
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+
+  /* base: deep radial + linear gradient */
+  background:
+    radial-gradient(1200px 600px at 8% 10%, rgba(79,70,229,0.12), transparent 12%),
+    radial-gradient(900px 500px at 90% 80%, rgba(6,182,212,0.08), transparent 12%),
+    linear-gradient(180deg, #031226 0%, #07172b 40%, #020614 100%);
+  background-attachment: fixed;
+  background-size: cover;
+
+  /* animated subtle hue shift */
+  background-blend-mode: screen;
+  animation: bgHue 18s linear infinite;
+}
+
+/* subtle animated hue shift for the gradient (very light) */
+@keyframes bgHue {
+  0% { filter: hue-rotate(0deg) saturate(1); }
+  50% { filter: hue-rotate(12deg) saturate(1.05); }
+  100% { filter: hue-rotate(0deg) saturate(1); }
+}
+
+/* -------------------- Layout -------------------- */
+.app { display:flex; min-height:100vh; flex-direction:column; }
+.container { width:100%; max-width:var(--max-width); margin:0 auto; padding:28px; }
+
+/* -------------------- Header -------------------- */
+header {
+  position:sticky; top:0; z-index:50;
+  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, rgba(11,18,32,0.55), rgba(11,18,32,0.35));
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.header-inner{ display:flex; align-items:center; justify-content: space-between; gap:18px; padding:12px 0; }
+.brand { display:flex; align-items:center; gap:12px; }
+.logo {
+  width:44px; height:44px; border-radius:10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 6px 18px rgba(79,70,229,0.14);
+  font-weight:700; color:white; font-size:18px;
+}
+.nav { margin-left:auto; display:flex; gap:14px; align-items:center; }
+.nav a {
+  color:var(--soft); text-decoration:none; padding:8px 12px; border-radius:10px;
+  font-weight:600; font-size:14px;
+}
+.nav a:hover { background:var(--glass); color:var(--text); transform:translateY(-1px); }
+
+/* -------------------- Hero -------------------- */
+.hero { padding:56px 0 32px; display:grid; grid-template-columns: 1fr 420px; gap:28px; align-items:center; }
+@media (max-width:940px){ .hero{ grid-template-columns:1fr; } .nav{display:none;} }
+.hero-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius:18px; padding:30px; box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  border:1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+.hero h1{ margin:0; font-size:36px; letter-spacing:-0.6px; }
+.hero p.lead{ color:var(--muted); margin-top:10px; font-size:16px; max-width:60ch; }
+
+/* -------------------- CTA -------------------- */
+.cta { display:flex; gap:12px; margin-top:16px; align-items:center; }
+.btn {
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:white; padding:10px 14px; border-radius:10px; font-weight:700;
+  border:none; cursor:pointer; box-shadow:0 8px 20px rgba(79,70,229,0.18);
+}
+.btn.secondary {
+  background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--soft); font-weight:600;
+}
+.small { font-size:13px; padding:8px 10px; }
+
+/* -------------------- Profile card -------------------- */
+.profile {
+  text-align:center; padding:22px; border-radius:12px; background:var(--card);
+  box-shadow: 0 8px 24px rgba(2,6,23,0.5); border:1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+}
+.avatar {
+  width:120px; height:120px; border-radius:16px; margin:0 auto 12px;
+  background:linear-gradient(135deg,var(--accent-2),var(--accent)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:32px;
+  overflow: hidden;
+}
+.avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.profile h3{ margin:6px 0; }
+.profile p{ color:var(--muted); margin:0; font-size:14px; }
+
+/* -------------------- Projects grid -------------------- */
+.section { margin-top:36px; }
+.project-grid {
+  display:grid; grid-template-columns: repeat(3, 1fr); gap:18px;
+}
+@media (max-width:980px){ .project-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:640px){ .project-grid{ grid-template-columns:1fr; } }
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius:14px; padding:16px; border:1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 8px 20px rgba(2,6,23,0.45);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card:hover { transform: translateY(-8px); box-shadow: 0 18px 50px rgba(2,6,23,0.6); }
+
+.project-img {
+  width:100%; height:160px; border-radius:10px; background:#071031; display:block; object-fit:cover; margin-bottom:10px;
+}
+
+/* -------------------- Tech badges -------------------- */
+.badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.badge {
+  background: rgba(255,255,255,0.03); color:var(--soft); font-weight:600; font-size:12px;
+  padding:6px 8px; border-radius:999px;
+}
+
+/* -------------------- Project actions -------------------- */
+.row { display:flex; align-items:center; gap:12px; margin-top:12px; }
+.link-btn {
+  display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; font-weight:700; font-size:13px;
+  text-decoration:none; color:var(--text); background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+}
+.link-btn:hover { transform:translateY(-3px); }
+
+/* -------------------- Footer -------------------- */
+footer { margin-top:auto; padding:20px 0; background:transparent; color:var(--muted); border-top:1px solid rgba(255,255,255,0.02); }
+.footer-inner { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+
+/* -------------------- Utilities -------------------- */
+.kicker { color:var(--accent-2); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.9px; }
+.lead-sm { color:var(--muted); font-size:14px; }
+
+/* -------------------- Responsive helpers -------------------- */
+@media (max-width:720px){
+  .hero{ padding:28px 0; gap:18px; }
+  .hero h1{ font-size:28px; }
+  .container { padding:18px; }
+  .nav{ display:none; }
+}
+
+/* -------------------- Subtle card entrance animation -------------------- */
+.card { opacity:0; transform: translateY(6px); animation: fadeUp .45s ease forwards; }
+.card:nth-child(1){ animation-delay: .06s; }
+.card:nth-child(2){ animation-delay: .12s; }
+@keyframes fadeUp { to { opacity:1; transform:none; } }
+
+/* -------------------- Contact form vertical layout -------------------- */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Ensures labels + inputs stack correctly */
+.contact-form label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  display: block;
+  background: transparent;
+  border:1px solid rgba(255,255,255,0.04);
+  padding:10px;
+  border-radius:8px;
+  color:var(--text);
+}
+
+/* -------------------- Admin improvements -------------------- */
+.admin-grid { display:grid; grid-template-columns: 1fr 420px; gap:18px; }
+.contact-form { display:flex; flex-direction:column; gap:12px; }
+.card img { border-radius:8px; }
+
+/* badge in admin list */
+.badge { background: rgba(255,255,255,0.03); color:var(--soft); font-weight:600; font-size:12px;
+  padding:6px 8px; border-radius:999px; }
+
+/* small buttons */
+.btn.small { padding:8px 10px; font-size:13px; }
+.btn.secondary.small { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--soft); }
+
+/* ensure admin cards align nicely */
+@media (max-width:980px){
+  .admin-grid { grid-template-columns: 1fr; }
+  .card img { display:none; }
+}
+
+/* -------------------- Hamburger & mobile nav (basic) -------------------- */
+.hamburger {
+  display: none;
+  border: 0;
+  background: transparent;
+  padding: 8px;
+  margin-left: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.hamburger:focus { outline: 2px solid rgba(79,70,229,0.25); }
+
+.hamburger-box { width: 34px; height: 22px; display:inline-block; position:relative; }
+.hamburger-inner {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text);
+  transform: translateY(-50%);
+  transition: background .2s ease;
+}
+.hamburger-inner::before,
+.hamburger-inner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--text);
+  transition: transform .25s ease, top .25s ease, opacity .2s ease;
+}
+.hamburger-inner::before { top: -8px; }
+.hamburger-inner::after { top: 8px; }
+
+.hamburger.is-open .hamburger-inner { background: transparent; }
+.hamburger.is-open .hamburger-inner::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+.hamburger.is-open .hamburger-inner::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+/* Mobile overlay (dim background) */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+  z-index: 60;
+}
+.mobile-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* Slide-in mobile nav */
+.mobile-nav {
+  position: fixed;
+  top: 0;
+  right: -110%;
+  max-width: 420px;
+  width: 92vw;
+  overflow-x: hidden;
+  width: min(92vw, 420px);
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(11,18,32,0.98), rgba(8,12,20,0.98));
+  box-shadow: -24px 0 50px rgba(2,6,23,0.6);
+  z-index: 70;
+  transition: right .28s cubic-bezier(.2,.9,.3,1);
+  display: flex;
+  align-items: stretch;
+  padding: 22px;
+}
+.mobile-nav.open { right: 0; }
+
+.mobile-nav-inner { width: 100%; display:flex; flex-direction:column; gap:18px; }
+.mobile-brand { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+.mobile-links { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+.mobile-links a { padding:12px 10px; border-radius:10px; color:var(--text); text-decoration:none; font-weight:700; }
+.mobile-links a:hover { background: rgba(255,255,255,0.02); transform: translateX(-4px); }
+
+/* Hide desktop nav and show hamburger on medium + small screens */
+@media (min-width: 701px) {
+  .mobile-nav { right: -100% !important; left:-100% !important }
+  .mobile-overlay { opacity:0 !important; pointer-events:none !important; }
+  .hamburger { display:none !important; }
+  .nav { display:flex !important; }
+}
+
+/* When going back to desktop size, force mobile nav closed */
+@media (max-width:700px) {
+  .nav { display:none !important; }
+  .hamburger { display:flex !important; }
+}
+
+/* Ensure header stacking keeps mobile nav above content */
+header { position: sticky; top: 0; z-index: 55; }
+
+/* small tweak for mobile link buttons in menu */
+.mobile-nav .link-btn { display:inline-flex; margin-right:8px; margin-top:6px; }
+
+/* locked card / admin page tweaks */
+.card { transition: transform .12s ease, box-shadow .12s ease; }
+.card .kicker { font-size:12px; text-transform:uppercase; color:var(--accent-2); font-weight:700; }
+
+/* responsive */
+@media (max-width:980px) {
+  .container > div[style*="grid"] { grid-template-columns: 1fr; }
+  .mobile-panel { width: 100vw; }
+}
+
+/* -------------------- Login reveal animation for Admin locked view -------------------- */
+.login-reveal.hidden {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  transition: max-height .36s cubic-bezier(.2,.9,.3,1), opacity .28s ease, transform .28s ease;
+  pointer-events: none;
+}
+
+.login-reveal.reveal {
+  max-height: 600px; /* allow form height */
+  opacity: 1;
+  transform: translateY(0);
+  transition: max-height .46s cubic-bezier(.2,.9,.3,1), opacity .28s ease, transform .28s ease;
+  pointer-events: auto;
+}
+
+/* -------------------- Floating blurred shapes -------------------- */
+.bg-shape {
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(70px);
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+/* shape 1 (top-left) */
+.bg-shape-1 {
+  width: 720px;
+  height: 520px;
+  top: -12%;
+  left: -8%;
+  border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(79,70,229,0.55), rgba(79,70,229,0.18) 25%, transparent 40%);
+  animation: float1 16s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+/* shape 2 (bottom-right) */
+.bg-shape-2 {
+  width: 640px;
+  height: 560px;
+  bottom: -10%;
+  right: -6%;
+  border-radius: 50% 40% 60% 45% / 52% 58% 40% 48%;
+  background: radial-gradient(circle at 70% 70%, rgba(6,182,212,0.48), rgba(6,182,212,0.14) 24%, transparent 42%);
+  animation: float2 20s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+/* gentle motion keyframes */
+@keyframes float1 {
+  0% { transform: translateY(-6px) rotate(-3deg) scale(1); opacity:0.9; }
+  100% { transform: translateY(10px) rotate(3deg) scale(1.06); opacity:0.8; }
+}
+@keyframes float2 {
+  0% { transform: translateY(8px) rotate(3deg) scale(1); opacity:0.9; }
+  100% { transform: translateY(-12px) rotate(-3deg) scale(1.08); opacity:0.78; }
+}
+
+/* small screen adjustments so shapes don't crowd content */
+@media (max-width: 980px) {
+  .bg-shape-1 { left: -40%; top: -30%; width: 520px; height: 420px; filter: blur(60px); opacity:0.75; }
+  .bg-shape-2 { right: -40%; bottom: -30%; width: 520px; height: 420px; filter: blur(60px); opacity:0.72; }
+}
+@media (max-width: 520px) {
+  .bg-shape-1, .bg-shape-2 { display:none; } /* hide on very small screens for readability */
+}
+
+/* -------------------- End of styles.css -------------------- */
+
+/* Hidden by default */
+.login-reveal.hidden {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: translateY(-10px);
+  transition: all 0.35s ease;
+}
+
+/* Visible when showLogin = true */
+.login-reveal.reveal {
+  max-height: 500px;
+  opacity: 1;
+  padding: 18px !important;
+  margin-top: 18px !important;
+  transform: translateY(0);
+  transition: all 0.35s ease;
+}
