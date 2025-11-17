@@ -425,7 +425,8 @@ html, body {
   box-sizing: border-box;
   overflow-x: hidden;            /* prevent horizontal scroll globally */
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;          /* allow vertical pan, block horizontal pan gestures */
+  touch-action: manipulation; /* allows panning and pinch-zoom on most browsers */
+  /* touch-action: pan-y;          allow vertical pan, block horizontal pan gestures */
 }
 
 /* container constraints so content never overflows */
@@ -500,3 +501,5 @@ html, body {
 * {
   box-sizing: border-box;
 }
+
+
