@@ -11,60 +11,32 @@ export default function Home() {
   const [certs, setCerts] = useState([]);
 
   useEffect(() => {
+    let mounted = true;
     setLoading(true);
-
-    fetchProjects()
-      .then(projRes => {
-        setProjects(projRes.data || []);
-        setError('');
-      })
-      .catch(err => {
-        console.error('Home load error:', err);
-        setError('Could not load projects or profile.');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-
-    getAdminProfile()
-      .then(profileRes => {
-        setProfile(profileRes.data || null);
-        setError('');
-      })
-      .catch(err => {
-        console.warn("Public home cannot load profile");
-        setProfile(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-
-    fetchExperiences()
-      .then(expRes => {
-        setExperiences(expRes.data || null);
-        setError('')
-      })
-      .catch(err => {
-        console.error('Home load error:', err);
-        setError('Could not load Experience');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-
-    fetchCertifications()
-      .then(certRes => {
-        setCerts(certRes.data || null);
-        setError('')
-      })
-      .catch(err => {
-        console.error('Home load error:', err);
-        setError('Could not load Certificates');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-
+    setError('');
+  
+    Promise.allSettled([
+      fetchProjects(),
+      getAdminProfile(),
+      fetchExperiences(),
+      fetchCertifications()
+    ]).then(results => {
+      if (!mounted) return;
+      const [projRes, profileRes, expRes, certRes] = results;
+      if (projRes.status === 'fulfilled') setProjects(projRes.value.data || []);
+      if (profileRes.status === 'fulfilled') setProfile(profileRes.value.data || null);
+      if (expRes.status === 'fulfilled') setExperiences(expRes.value.data || []);
+      if (certRes.status === 'fulfilled') setCerts(certRes.value.data || []);
+      const anyRejected = results.some(r => r.status === 'rejected');
+      if (anyRejected) setError('Some content failed to load.');
+    }).catch(err => {
+      console.error('aggregated fetch error', err);
+      if (mounted) setError('Could not load content.');
+    }).finally(() => {
+      if (mounted) setLoading(false);
+    });
+  
+    return () => { mounted = false; };
   }, []);
 
   const name = profile?.name || 'Venkatesh';
