@@ -525,13 +525,32 @@ export default function Admin() {
         </div>
 
         <div style={{ display:'flex', gap:8 }}>
-          <button className="btn small" onClick={()=>{ setForm(blankForm); setEditingId(null); setShowProjectForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>New Project</button>
+          {/* <button className="btn small" onClick={()=>{ setForm(blankForm); setEditingId(null); setShowProjectForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>New Project</button> */}
           <button className="btn secondary small" onClick={logout}>Logout</button>
         </div>
       </div>
 
       <div className="admin-grid" style={{ marginTop: 18 }}>
-        <div>
+      <div className="card" style={{ padding:16 }}>
+            <h3 style={{ marginTop:0 }}>Your Profile</h3>
+            <div style={{ display:'flex', gap:12, alignItems:'center', marginTop:8 }}>
+              <img src={profile?.avatarUrl || `https://picsum.photos/seed/admin/160/160`} alt="avatar" style={{ width:86, height:86, borderRadius:12, objectFit:'cover' }} />
+              <div style={{ flex:1 }}>
+                <strong style={{ display:'block' }}>{profile?.name}</strong>
+                <div style={{ color:'var(--muted)' }}>{profile?.email}</div>
+                <div style={{ marginTop:8 }} className="lead-sm">{profile?.bio}</div>
+              </div>
+            </div>
+
+            <hr style={{ margin:'14px 0', borderColor:'rgba(255,255,255,0.03)' }} />
+            <ProfileEditor profile={profile} setProfile={setProfile} onSave={updateProfile} />
+          </div>
+
+        <aside>
+          
+
+
+          <div>
           {showProjectForm && (
             <div className="card">
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -604,39 +623,35 @@ export default function Admin() {
               </div>
 
               <div style={{ display:'grid', gap:12, marginTop:12 }}>
-                {loading ? <div>Loading…</div> : (projects.length === 0 ? <div className="card">No projects yet.</div> : projects.map(p => (
-                  <div key={p._id} className="card" style={{ display:'flex', gap:12, alignItems:'center' }}>
-                    <img src={p.imageUrl || `https://picsum.photos/seed/${p._id}/200/120`} alt="" style={{ width:110, height:70, objectFit:'cover', borderRadius:8 }} />
-                    <div style={{ flex:1 }}>
-                      <strong>{p.title}</strong>
-                      <div style={{ color:'var(--muted)', fontSize:13, marginTop:6 }}>{p.shortDescription}</div>
+                {loading ? (
+                  <div>Loading…</div>
+                ) : projects.length === 0 ? (
+                  <div className="card">No projects yet.</div>
+                ) : (
+                  projects.map(p => (
+                    <div key={p._id} className="card admin-list-row">
+                      <img
+                        src={p.imageUrl || `https://picsum.photos/seed/${p._id}/200/120`}
+                        alt={p.title}
+                        className="admin-row-image"
+                      />
+
+                      <div className="admin-row-body">
+                        <strong style={{ display: 'block' }}>{p.title}</strong>
+                        <div className="muted small-text" style={{ marginTop: 6 }}>{p.shortDescription}</div>
+                      </div>
+
+                      <div className="admin-row-actions">
+                        <button className="btn small" onClick={() => startEdit(p)}>Edit</button>
+                        <button className="btn secondary small" onClick={() => handleDelete(p._id)}>Delete</button>
+                      </div>
                     </div>
-                    <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                      <button className="btn small" onClick={()=>startEdit(p)}>Edit</button>
-                      <button className="btn secondary small" onClick={()=>handleDelete(p._id)}>Delete</button>
-                    </div>
-                  </div>
-                )))}
+                  ))
+                )}
               </div>
             </div>
           </div>
         </div>
-
-        <aside>
-          <div className="card" style={{ padding:16 }}>
-            <h3 style={{ marginTop:0 }}>Your Profile</h3>
-            <div style={{ display:'flex', gap:12, alignItems:'center', marginTop:8 }}>
-              <img src={profile?.avatarUrl || `https://picsum.photos/seed/admin/160/160`} alt="avatar" style={{ width:86, height:86, borderRadius:12, objectFit:'cover' }} />
-              <div style={{ flex:1 }}>
-                <strong style={{ display:'block' }}>{profile?.name}</strong>
-                <div style={{ color:'var(--muted)' }}>{profile?.email}</div>
-                <div style={{ marginTop:8 }} className="lead-sm">{profile?.bio}</div>
-              </div>
-            </div>
-
-            <hr style={{ margin:'14px 0', borderColor:'rgba(255,255,255,0.03)' }} />
-            <ProfileEditor profile={profile} setProfile={setProfile} onSave={updateProfile} />
-          </div>
 
           {/* Messages */}
           <div style={{ marginTop:12 }} className="card">
