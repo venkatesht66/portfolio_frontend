@@ -1,4 +1,3 @@
-// src/pages/Admin.js
 import React, { useEffect, useState } from 'react';
 import {
   login,
@@ -12,7 +11,6 @@ import {
   fetchContacts,
   deleteContact,
   updateContact,
-  // Experiences & Certs API helpers (must exist in ../api/api)
   fetchExperiences,
   createExperience,
   updateExperience,
@@ -56,7 +54,7 @@ function MessageDetailModal({ open, onClose, message }) {
 /* ---------------- Experience Editor component ---------------- */
 function ExperienceEditor({ onSave, onCancel, initial = null }) {
   const blank = {
-    type: 'full-time', // 'full-time' or 'internship'
+    type: 'full-time',
     company: '',
     role: '',
     startDate: '',
@@ -69,7 +67,6 @@ function ExperienceEditor({ onSave, onCancel, initial = null }) {
   useEffect(() => {
     if (initial) setForm(initial);
     else setForm(blank);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial]);
 
   const submit = async (e) => {
@@ -121,6 +118,13 @@ function ExperienceEditor({ onSave, onCancel, initial = null }) {
   );
 }
 
+const BLANK_CERT = {
+  title: '',
+  issuer: '',
+  date: '',
+  url: ''
+};
+
 /* ---------------- Certification Editor ---------------- */
 function CertificationEditor({ onSave, onCancel, initial = null }) {
   const blank = {
@@ -132,8 +136,7 @@ function CertificationEditor({ onSave, onCancel, initial = null }) {
   const [form, setForm] = useState(initial || blank);
 
   useEffect(() => {
-    if (initial) setForm(initial);
-    else setForm(blank);
+    setForm(initial || BLANK_CERT);
   }, [initial]);
 
   const submit = async (e) => {
@@ -166,34 +169,30 @@ function CertificationEditor({ onSave, onCancel, initial = null }) {
 
 /* ---------------- Main Admin page ---------------- */
 export default function Admin() {
-  // Auth / login
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Data
   const [projects, setProjects] = useState([]);
   const [profile, setProfile] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [certifications, setCertifications] = useState([]);
 
-  // UI state
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // {type,msg}
+  const [status, setStatus] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
 
-  // Project form
   const blankForm = { title:'', shortDescription:'', description:'', techStack:[], techInput:'', repoUrl:'', liveUrl:'', imageUrl:'' };
   const [form, setForm] = useState(blankForm);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  // Modal / selected message
+  const [showProjectForm, setShowProjectForm] = useState(false);
+
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Experience / certification editing UI helpers
   const [editingExperience, setEditingExperience] = useState(null); // object or null
   const [showExpForm, setShowExpForm] = useState(false);
   const [editingCertification, setEditingCertification] = useState(null);
@@ -218,7 +217,6 @@ export default function Admin() {
       console.error('loadData error', err?.response?.status, err?.response?.data || err?.message);
       setStatus({ type:'error', msg: 'Could not load admin data' });
 
-      // fallback partial fetches (try to populate what we can)
       try { const r = await fetchProjects(); setProjects(r.data || []); } catch(e){ console.warn('proj fallback', e?.message); }
       try { const r = await getAdminProfile(); setProfile(r.data || null); } catch(e){ console.warn('profile fallback', e?.message); }
       try { const r = await fetchContacts(); setContacts(r.data || []); } catch(e){ console.warn('contacts fallback', e?.message); }
@@ -234,10 +232,8 @@ export default function Admin() {
       setAuthToken(token);
       loadData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // Login
   const doLogin = async (e) => {
     e.preventDefault(); setStatus(null);
     try {
@@ -280,6 +276,7 @@ export default function Admin() {
       liveUrl: p.liveUrl || '',
       imageUrl: p.imageUrl || ''
     });
+    setShowProjectForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -311,7 +308,9 @@ export default function Admin() {
         setProjects(prev => [r.data, ...prev]);
         setStatus({ type:'success', msg:'Project created' });
       }
-      setForm(blankForm); setEditingId(null);
+      setForm(blankForm);
+      setEditingId(null);
+      setShowProjectForm(false);
     } catch (err) {
       console.error('submitProject err', err?.response?.data || err?.message);
       setStatus({ type:'error', msg:'Save failed' });
@@ -450,7 +449,6 @@ export default function Admin() {
     }
   };
 
-  /* ---------- Locked view (not logged in) ---------- */
   if (!token) {
     return (
       <div className="container" style={{ paddingTop: 40, paddingBottom: 40 }}>
@@ -518,87 +516,93 @@ export default function Admin() {
     );
   }
 
-  /* ---------- Admin dashboard (logged in) ---------- */
   return (
     <div className="container" style={{ paddingTop: 20, paddingBottom: 40 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div>
           <div className="kicker">Admin</div>
           <h1 style={{ margin:'6px 0' }}>Manage Projects, Profile & Content</h1>
-          <div className="lead-sm">Left: projects. Right: profile, messages, experiences, certifications.</div>
         </div>
 
         <div style={{ display:'flex', gap:8 }}>
-          <button className="btn small" onClick={()=>{ setForm(blankForm); setEditingId(null); }}>New Project</button>
+          <button className="btn small" onClick={()=>{ setForm(blankForm); setEditingId(null); setShowProjectForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>New Project</button>
           <button className="btn secondary small" onClick={logout}>Logout</button>
         </div>
       </div>
 
       <div className="admin-grid" style={{ marginTop: 18 }}>
-        {/* LEFT: projects + list */}
         <div>
-          <div className="card">
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <h3 style={{ margin:0 }}>{editingId ? 'Edit Project' : 'Create Project'}</h3>
-              <div className="lead-sm" style={{ color:'var(--muted)' }}>{saving ? 'Saving...' : 'Draft'}</div>
+          {showProjectForm && (
+            <div className="card">
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <h3 style={{ margin:0 }}>{editingId ? 'Edit Project' : 'Create Project'}</h3>
+                <div className="lead-sm" style={{ color:'var(--muted)' }}>{saving ? 'Saving...' : 'Draft'}</div>
+              </div>
+
+              <form onSubmit={submitProject} className="contact-form" style={{ marginTop:12 }}>
+                <label>Title *</label>
+                <input value={form.title} onChange={e=>setForm({...form, title: e.target.value})} placeholder="Project title" />
+
+                <label>Short description *</label>
+                <input value={form.shortDescription} onChange={e=>setForm({...form, shortDescription: e.target.value})} placeholder="One-liner" />
+
+                <label>Full description *</label>
+                <textarea rows="6" value={form.description} onChange={e=>setForm({...form, description: e.target.value})} />
+
+                <label>Tech stack (type + Enter)</label>
+                <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
+                  <input placeholder="e.g. React" value={form.techInput} onChange={e=>setForm({...form, techInput: e.target.value})}
+                    onKeyDown={e=>{ if (e.key==='Enter'){ e.preventDefault(); addTech(form.techInput.trim()); } }} />
+                  <button type="button" className="btn small" onClick={()=>addTech(form.techInput.trim())}>Add</button>
+                </div>
+
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:8 }}>
+                  {form.techStack.map(t => (
+                    <div key={t} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 10px', borderRadius:999, background:'rgba(255,255,255,0.03)' }}>
+                      <span style={{ fontWeight:700 }}>{t}</span>
+                      <button type="button" onClick={()=>removeTech(t)} style={{ background:'transparent', border:'none', color:'salmon', cursor:'pointer' }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+
+                <label>Repository URL</label>
+                <input value={form.repoUrl} onChange={e=>setForm({...form, repoUrl: e.target.value})} />
+
+                <label>Live URL</label>
+                <input value={form.liveUrl} onChange={e=>setForm({...form, liveUrl: e.target.value})} />
+
+                <label>Image URL (preview)</label>
+                <input value={form.imageUrl} onChange={e=>setForm({...form, imageUrl: e.target.value})} />
+                <div style={{ marginTop:10 }}>
+                  {form.imageUrl ? (
+                    <div style={{ width:240, borderRadius:8, overflow:'hidden', border:'1px solid rgba(255,255,255,0.04)' }}>
+                      <img src={form.imageUrl} alt="preview" style={{ width:'100%', display:'block' }} onError={(e)=>{ e.currentTarget.src = `https://picsum.photos/seed/${Date.now()}/800/400`; }} />
+                    </div>
+                  ) : (
+                    <div style={{ width:240, height:120, borderRadius:8, background:'rgba(255,255,255,0.02)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>No image</div>
+                  )}
+                </div>
+
+                <div style={{ display:'flex', gap:8, marginTop:12 }}>
+                  <button className="btn" type="submit" disabled={saving}>{editingId ? 'Update Project' : 'Create Project'}</button>
+                  <button type="button" className="btn secondary" onClick={()=>{ setShowProjectForm(false); }}>{editingId ? 'Cancel' : 'Close'}</button>
+                  <button type="button" className="btn secondary small" onClick={()=>{ setForm(blankForm); setEditingId(null); }}>Clear</button>
+                </div>
+
+                {status && <p style={{ marginTop:10, color: status.type === 'error' ? 'salmon' : 'lightgreen' }}>{status.msg}</p>}
+              </form>
             </div>
-
-            <form onSubmit={submitProject} className="contact-form" style={{ marginTop:12 }}>
-              <label>Title *</label>
-              <input value={form.title} onChange={e=>setForm({...form, title: e.target.value})} placeholder="Project title" />
-
-              <label>Short description *</label>
-              <input value={form.shortDescription} onChange={e=>setForm({...form, shortDescription: e.target.value})} placeholder="One-liner" />
-
-              <label>Full description *</label>
-              <textarea rows="6" value={form.description} onChange={e=>setForm({...form, description: e.target.value})} />
-
-              <label>Tech stack (type + Enter)</label>
-              <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:6 }}>
-                <input placeholder="e.g. React" value={form.techInput} onChange={e=>setForm({...form, techInput: e.target.value})}
-                  onKeyDown={e=>{ if (e.key==='Enter'){ e.preventDefault(); addTech(form.techInput.trim()); } }} />
-                <button type="button" className="btn small" onClick={()=>addTech(form.techInput.trim())}>Add</button>
-              </div>
-
-              <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:8 }}>
-                {form.techStack.map(t => (
-                  <div key={t} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 10px', borderRadius:999, background:'rgba(255,255,255,0.03)' }}>
-                    <span style={{ fontWeight:700 }}>{t}</span>
-                    <button type="button" onClick={()=>removeTech(t)} style={{ background:'transparent', border:'none', color:'salmon', cursor:'pointer' }}>✕</button>
-                  </div>
-                ))}
-              </div>
-
-              <label>Repository URL</label>
-              <input value={form.repoUrl} onChange={e=>setForm({...form, repoUrl: e.target.value})} />
-
-              <label>Live URL</label>
-              <input value={form.liveUrl} onChange={e=>setForm({...form, liveUrl: e.target.value})} />
-
-              <label>Image URL (preview)</label>
-              <input value={form.imageUrl} onChange={e=>setForm({...form, imageUrl: e.target.value})} />
-              <div style={{ marginTop:10 }}>
-                {form.imageUrl ? (
-                  <div style={{ width:240, borderRadius:8, overflow:'hidden', border:'1px solid rgba(255,255,255,0.04)' }}>
-                    <img src={form.imageUrl} alt="preview" style={{ width:'100%', display:'block' }} onError={(e)=>{ e.currentTarget.src = `https://picsum.photos/seed/${Date.now()}/800/400`; }} />
-                  </div>
-                ) : (
-                  <div style={{ width:240, height:120, borderRadius:8, background:'rgba(255,255,255,0.02)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>No image</div>
-                )}
-              </div>
-
-              <div style={{ display:'flex', gap:8, marginTop:12 }}>
-                <button className="btn" type="submit" disabled={saving}>{editingId ? 'Update Project' : 'Create Project'}</button>
-                <button type="button" className="btn secondary" onClick={()=>{ setForm(blankForm); setEditingId(null); }}>Clear</button>
-              </div>
-
-              {status && <p style={{ marginTop:10, color: status.type === 'error' ? 'salmon' : 'lightgreen' }}>{status.msg}</p>}
-            </form>
-          </div>
+          )}
 
           <div style={{ marginTop:12 }}>
             <div className="card">
-              <h3 style={{ marginTop:0 }}>Your Projects</h3>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <h3 style={{ marginTop:0 }}>Your Projects</h3>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <button className="btn small" onClick={()=>{ setForm(blankForm); setEditingId(null); setShowProjectForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Add</button>
+                </div>
+              </div>
+
               <div style={{ display:'grid', gap:12, marginTop:12 }}>
                 {loading ? <div>Loading…</div> : (projects.length === 0 ? <div className="card">No projects yet.</div> : projects.map(p => (
                   <div key={p._id} className="card" style={{ display:'flex', gap:12, alignItems:'center' }}>
@@ -618,7 +622,6 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* RIGHT: profile, messages, experiences, certifications, security */}
         <aside>
           <div className="card" style={{ padding:16 }}>
             <h3 style={{ marginTop:0 }}>Your Profile</h3>
@@ -637,9 +640,13 @@ export default function Admin() {
 
           {/* Messages */}
           <div style={{ marginTop:12 }} className="card">
-            <h4 style={{ marginTop:0 }}>Messages <small style={{ color:'var(--muted)' }}>({contacts.length})</small></h4>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <h4 style={{ marginTop:0 }}>Messages <small style={{ color:'var(--muted)' }}>({contacts.length})</small></h4>
+            </div>
 
-            {contacts.length === 0 ? (
+            {loading ? (
+              <div style={{ color:'var(--muted)', padding:'8px 0' }}>Loading…</div>
+            ) : contacts.length === 0 ? (
               <div style={{ color:'var(--muted)', padding:'8px 0' }}>No messages yet.</div>
             ) : (
               <div style={{ display:'grid', gap:10, marginTop:8 }}>
@@ -677,33 +684,39 @@ export default function Admin() {
               </div>
             </div>
 
-            {showExpForm && (
-              <ExperienceEditor
-                initial={editingExperience}
-                onSave={onSaveExperience}
-                onCancel={() => { setShowExpForm(false); setEditingExperience(null); }}
-              />
-            )}
+            {loading ? (
+              <div style={{ color:'var(--muted)', padding:'8px 0' }}>Loading…</div>
+            ) : (
+              <>
+                {showExpForm && (
+                  <ExperienceEditor
+                    initial={editingExperience}
+                    onSave={onSaveExperience}
+                    onCancel={() => { setShowExpForm(false); setEditingExperience(null); }}
+                  />
+                )}
 
-            <div style={{ marginTop:8, display:'grid', gap:8 }}>
-              {experiences.length === 0 && <div style={{ color:'var(--muted)' }}>No experiences yet.</div>}
-              {experiences.map(exp => (
-                <div key={exp._id} style={{ display:'flex', justifyContent:'space-between', gap:8, alignItems:'center', padding:8, borderRadius:8, border:'1px solid rgba(255,255,255,0.03)' }}>
-                  <div style={{ flex:1 }}>
-                    <strong>{exp.role} @ {exp.company}</strong>
-                    <div style={{ color:'var(--muted)', fontSize:13 }}>
-                      {exp.type === 'internship' ? 'Internship' : 'Full-time'}
-                      {exp.startDate ? ` • ${exp.startDate}` : ''}{exp.endDate ? ` — ${exp.endDate}` : ''}
+                <div style={{ marginTop:8, display:'grid', gap:8 }}>
+                  {experiences.length === 0 && <div style={{ color:'var(--muted)' }}>No experiences yet.</div>}
+                  {experiences.map(exp => (
+                    <div key={exp._id} style={{ display:'flex', justifyContent:'space-between', gap:8, alignItems:'center', padding:8, borderRadius:8, border:'1px solid rgba(255,255,255,0.03)' }}>
+                      <div style={{ flex:1 }}>
+                        <strong>{exp.role} @ {exp.company}</strong>
+                        <div style={{ color:'var(--muted)', fontSize:13 }}>
+                          {exp.type === 'internship' ? 'Internship' : 'Full-time'}
+                          {exp.startDate ? ` • ${exp.startDate}` : ''}{exp.endDate ? ` — ${exp.endDate}` : ''}
+                        </div>
+                        <div style={{ marginTop:6, fontSize:13, color:'var(--soft)' }}>{exp.description ? (exp.description.length>140 ? exp.description.slice(0,140)+'…' : exp.description) : ''}</div>
+                      </div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                        <button className="btn small" onClick={()=>onEditExperience(exp)}>Edit</button>
+                        <button className="btn secondary small" onClick={()=>onDeleteExperience(exp._id)}>Delete</button>
+                      </div>
                     </div>
-                    <div style={{ marginTop:6, fontSize:13, color:'var(--soft)' }}>{exp.description ? (exp.description.length>140 ? exp.description.slice(0,140)+'…' : exp.description) : ''}</div>
-                  </div>
-                  <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                    <button className="btn small" onClick={()=>onEditExperience(exp)}>Edit</button>
-                    <button className="btn secondary small" onClick={()=>onDeleteExperience(exp._id)}>Delete</button>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Certifications Manager */}
@@ -715,30 +728,36 @@ export default function Admin() {
               </div>
             </div>
 
-            {showCertForm && (
-              <CertificationEditor
-                initial={editingCertification}
-                onSave={onSaveCertification}
-                onCancel={() => { setShowCertForm(false); setEditingCertification(null); }}
-              />
-            )}
+            {loading ? (
+              <div style={{ color:'var(--muted)', padding:'8px 0' }}>Loading…</div>
+            ) : (
+              <>
+                {showCertForm && (
+                  <CertificationEditor
+                    initial={editingCertification}
+                    onSave={onSaveCertification}
+                    onCancel={() => { setShowCertForm(false); setEditingCertification(null); }}
+                  />
+                )}
 
-            <div style={{ marginTop:8, display:'grid', gap:8 }}>
-              {certifications.length === 0 && <div style={{ color:'var(--muted)' }}>No certifications yet.</div>}
-              {certifications.map(c => (
-                <div key={c._id} style={{ display:'flex', justifyContent:'space-between', gap:8, alignItems:'center', padding:8, borderRadius:8, border:'1px solid rgba(255,255,255,0.03)' }}>
-                  <div style={{ flex:1 }}>
-                    <strong>{c.title}</strong>
-                    <div style={{ color:'var(--muted)', fontSize:13 }}>{c.issuer}{c.date ? ` • ${c.date}` : ''}</div>
-                    {c.url && <div style={{ marginTop:6 }}><a className="link-btn" href={c.url} target="_blank" rel="noreferrer">Open cert</a></div>}
-                  </div>
-                  <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                    <button className="btn small" onClick={()=>onEditCertification(c)}>Edit</button>
-                    <button className="btn secondary small" onClick={()=>onDeleteCertification(c._id)}>Delete</button>
-                  </div>
+                <div style={{ marginTop:8, display:'grid', gap:8 }}>
+                  {certifications.length === 0 && <div style={{ color:'var(--muted)' }}>No certifications yet.</div>}
+                  {certifications.map(c => (
+                    <div key={c._id} style={{ display:'flex', justifyContent:'space-between', gap:8, alignItems:'center', padding:8, borderRadius:8, border:'1px solid rgba(255,255,255,0.03)' }}>
+                      <div style={{ flex:1 }}>
+                        <strong>{c.title}</strong>
+                        <div style={{ color:'var(--muted)', fontSize:13 }}>{c.issuer}{c.date ? ` • ${c.date}` : ''}</div>
+                        {c.url && <div style={{ marginTop:6 }}><a className="link-btn" href={c.url} target="_blank" rel="noreferrer">Open cert</a></div>}
+                      </div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                        <button className="btn small" onClick={()=>onEditCertification(c)}>Edit</button>
+                        <button className="btn secondary small" onClick={()=>onDeleteCertification(c._id)}>Delete</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           <div style={{ marginTop:12 }} className="card">
@@ -749,13 +768,11 @@ export default function Admin() {
         </aside>
       </div>
 
-      {/* Message modal */}
       <MessageDetailModal open={modalOpen} onClose={() => { setModalOpen(false); setSelectedMessage(null); }} message={selectedMessage} />
     </div>
   );
 }
 
-/* ---------- ProfileEditor component ---------- */
 function ProfileEditor({ profile, setProfile, onSave }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
