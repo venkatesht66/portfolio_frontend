@@ -1,12 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+  const btnRef = useRef(null);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function onDocPointer(e) {
+      const menuEl = menuRef.current;
+      const btnEl = btnRef.current;
+      if (menuEl && menuEl.contains(e.target)) return;
+      if (btnEl && btnEl.contains(e.target)) return;
+      setOpen(false);
+    }
+
+    function onKey(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+
+    document.addEventListener('mousedown', onDocPointer);
+    document.addEventListener('touchstart', onDocPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocPointer);
+      document.removeEventListener('touchstart', onDocPointer);
+      document.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   const navLinks = (
@@ -30,13 +57,12 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Desktop nav */}
         <nav className="nav" aria-label="Main navigation">
           {navLinks}
         </nav>
 
-        {/* Hamburger (visible on small screens) */}
         <button
+          ref={btnRef}
           className={`hamburger ${open ? 'is-open' : ''}`}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
@@ -48,11 +74,17 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile overlay menu */}
-      <div className={`mobile-overlay ${open ? 'open' : ''}`} onClick={() => setOpen(false)} />
+      <div
+        className={`mobile-overlay ${open ? 'open' : ''}`}
+        onClick={() => setOpen(false)}
+      />
 
-      <nav className={`mobile-nav ${open ? 'open' : ''}`} aria-hidden={!open}>
-        <div className="mobile-nav-inner">
+      <nav
+        ref={menuRef}
+        className={`mobile-nav ${open ? 'open' : ''}`}
+        aria-hidden={!open}
+      >
+        <div className="mobile-nav-inner" onClick={(e) => e.stopPropagation()}>
           <div className="mobile-brand">
             <div className="logo">VT</div>
             <div style={{marginLeft:12}}>
@@ -66,8 +98,23 @@ export default function Header() {
           </div>
 
           <div style={{marginTop:20}}>
-            <a className="link-btn" href="https://mail.google.com/mail/?view=cm&fs=1&to=tvenkatesh457146@gmail.com" target="_blank" rel="noreferrer" onClick={() => setOpen(false)}>Email</a>
-            <a className="link-btn" href="tel:8309108618" style={{marginLeft:8}} onClick={() => setOpen(false)}>Call</a>
+            <a
+              className="link-btn"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=tvenkatesh457146@gmail.com"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setOpen(false)}
+            >
+              Email
+            </a>
+            <a
+              className="link-btn"
+              href="tel:8309108618"
+              style={{marginLeft:8}}
+              onClick={() => setOpen(false)}
+            >
+              Call
+            </a>
           </div>
         </div>
       </nav>

@@ -598,7 +598,6 @@ export default function Admin() {
                 </div>
 
                 <form onSubmit={submitProject} className="contact-form" style={{ marginTop: 12 }}>
-                  {/* ... form inputs unchanged ... */}
                   <label>Title *</label>
                   <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Project title" />
 
